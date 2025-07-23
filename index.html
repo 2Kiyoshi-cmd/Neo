@@ -1,0 +1,1011 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Neo — Personal AI Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-dark: #0a0d14;
+            --bg-light: #fafbfc;
+            --card-bg-dark: #161b22;
+            --card-bg-light: #ffffff;
+            --text-dark: #0d1117;
+            --text-light: #f0f6fc;
+            --text-muted-dark: #7d8590;
+            --text-muted-light: #656d76;
+            --border-dark: #21262d;
+            --border-light: #d1d9e0;
+            --primary: #58a6ff;
+            --primary-hover: #4493f8;
+            --secondary: #8b949e;
+            --accent: #f85149;
+            --success: #3fb950;
+            --warning: #d29922;
+            --purple: #a5a3ff;
+            --gradient-bg: linear-gradient(135deg, #0a0d14 0%, #161b22 50%, #21262d 100%);
+            --gradient-light: linear-gradient(135deg, #fafbfc 0%, #f6f8fa 50%, #eaeef2 100%);
+            --shadow-dark: 0 16px 32px rgba(1, 4, 9, 0.85);
+            --shadow-light: 0 8px 24px rgba(140, 149, 159, 0.15);
+            --card-hover: rgba(88, 166, 255, 0.1);
+            --card-hover-light: rgba(88, 166, 255, 0.05);
+            --table-row-dark: #0d1117;
+            --table-row-light: #f6f8fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(22, 27, 34, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-muted-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary);
+        }
+
+        .toggle-mode {
+            background: var(--card-bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--border-dark);
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-mode:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .section {
+            display: none;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .welcome-logo {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted-dark);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid rgba(88, 166, 255, 0.2);
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .nav-card {
+            background: var(--card-bg-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-dark);
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card-hover);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .nav-card:hover::before {
+            opacity: 1;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(1, 4, 9, 0.9);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .card-description {
+            color: var(--text-muted-dark);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .card-stats {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-dark);
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted-dark);
+            font-size: 1.1rem;
+        }
+
+        /* Model Stats Section */
+        .model-selector {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .model-select-label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .model-select {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-dark);
+            background: var(--card-bg-dark);
+            color: var(--text-light);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .model-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .model-current-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .model-description {
+            color: var(--text-muted-dark);
+            margin: 1rem 0;
+            font-size: 1.05rem;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem 2rem;
+            margin: 2rem 0;
+            background: var(--card-bg-dark);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-dark);
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .spec-label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .spec-value {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Tools Table */
+        .tools-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--card-bg-dark);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-dark);
+            margin-top: 2rem;
+        }
+
+        .tools-table th {
+            background: var(--border-dark);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .tools-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-dark);
+            color: var(--text-light);
+        }
+
+        .tools-table tbody tr:nth-child(odd) {
+            background: var(--table-row-dark);
+        }
+
+        .tools-table tbody tr:hover {
+            background: var(--card-hover);
+        }
+
+        /* Documentation */
+        .docs-content {
+            background: var(--card-bg-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .docs-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .docs-tab {
+            padding: 0.5rem 1rem;
+            background: var(--border-dark);
+            color: var(--text-light);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .docs-tab.active {
+            background: var(--primary);
+        }
+
+        .docs-section {
+            display: none;
+        }
+
+        .docs-section.active {
+            display: block;
+        }
+
+        .docs-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .docs-section p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        /* Light mode styles */
+        body.light {
+            background: var(--gradient-light);
+            color: var(--text-dark);
+        }
+
+        body.light .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom-color: var(--border-light);
+        }
+
+        body.light .nav-link {
+            color: var(--text-muted-light);
+        }
+
+        body.light .nav-card,
+        body.light .docs-content,
+        body.light .specs-grid,
+        body.light .tools-table {
+            background: var(--card-bg-light);
+            border-color: var(--border-light);
+            box-shadow: var(--shadow-light);
+        }
+
+        body.light .nav-card::before {
+            background: var(--card-hover-light);
+        }
+
+        body.light .nav-card:hover {
+            box-shadow: 0 12px 28px rgba(140, 149, 159, 0.25);
+        }
+
+        body.light .card-title,
+        body.light .spec-value {
+            color: var(--text-dark);
+        }
+
+        body.light .welcome-subtitle,
+        body.light .card-description,
+        body.light .section-subtitle,
+        body.light .model-description {
+            color: var(--text-muted-light);
+        }
+
+        body.light .card-stats {
+            border-top-color: var(--border-light);
+        }
+
+        body.light .toggle-mode {
+            background: var(--card-bg-light);
+            color: var(--text-dark);
+            border-color: var(--border-light);
+        }
+
+        body.light .version-badge {
+            background: rgba(88, 166, 255, 0.05);
+            border-color: rgba(88, 166, 255, 0.15);
+        }
+
+        body.light .tools-table th {
+            background: var(--table-row-light);
+        }
+
+        body.light .tools-table td {
+            color: var(--text-dark);
+            border-bottom-color: var(--border-light);
+        }
+
+        body.light .tools-table tbody tr:nth-child(odd) {
+            background: var(--table-row-light);
+        }
+
+        body.light .model-select {
+            background: var(--card-bg-light);
+            color: var(--text-dark);
+            border-color: var(--border-light);
+        }
+
+        body.light .docs-tab {
+            background: var(--table-row-light);
+            color: var(--text-dark);
+        }
+
+        body.light .code-block {
+            background: var(--table-row-light);
+            border-color: var(--border-light);
+        }
+
+        /* Color-coded cards */
+        .nav-card.stats { --card-accent: var(--success); }
+        .nav-card.qa { --card-accent: var(--primary); }
+        .nav-card.models { --card-accent: var(--purple); }
+        .nav-card.tools { --card-accent: var(--warning); }
+        .nav-card.settings { --card-accent: var(--secondary); }
+        .nav-card.docs { --card-accent: var(--accent); }
+
+        .nav-card .card-icon {
+            color: var(--card-accent);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-bar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .welcome-logo {
+                font-size: 3rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .specs-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-logo" onclick="showSection('welcome')">Neo</div>
+        <div class="nav-links">
+            <a class="nav-link" onclick="showSection('stats')">Stats</a>
+            <a class="nav-link" onclick="showSection('models')">Models</a>
+            <a class="nav-link" onclick="showSection('tools')">Tools</a>
+            <a class="nav-link" onclick="showSection('docs')">Docs</a>
+            <button class="toggle-mode" onclick="toggleMode()">🌙 Dark</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section id="welcome" class="section welcome-section active">
+            <header class="welcome-header">
+                <h1 class="welcome-logo">Neo</h1>
+                <p class="welcome-subtitle">Personal AI Project Hub</p>
+                <span class="version-badge">v3.2-1T • Active Development</span>
+            </header>
+
+            <div class="nav-grid">
+                <div class="nav-card stats" onclick="showSection('stats')">
+                    <span class="card-icon">📊</span>
+                    <h2 class="card-title">Model Stats</h2>
+                    <p class="card-description">View performance metrics, response times, and model comparisons across all Neo versions.</p>
+                    <div class="card-stats">4 models • Real-time data</div>
+                </div>
+
+                <div class="nav-card models" onclick="showSection('models')">
+                    <span class="card-icon">🧠</span>
+                    <h2 class="card-title">Model Overview</h2>
+                    <p class="card-description">Detailed breakdown of each Neo version, specs, capabilities, and development notes.</p>
+                    <div class="card-stats">Technical details • Evolution timeline</div>
+                </div>
+
+                <div class="nav-card tools" onclick="showSection('tools')">
+                    <span class="card-icon">🔧</span>
+                    <h2 class="card-title">Tool Library</h2>
+                    <p class="card-description">Explore Neo's toolset, from weather and search to image generation and code analysis.</p>
+                    <div class="card-stats">16 active tools • Async processing</div>
+                </div>
+
+                <div class="nav-card docs" onclick="showSection('docs')">
+                    <span class="card-icon">📚</span>
+                    <h2 class="card-title">Documentation</h2>
+                    <p class="card-description">Development logs, API references, and technical documentation for the Neo project.</p>
+                    <div class="card-stats">Dev notes • API docs</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="stats" class="section">
+            <header class="section-header">
+                <h1 class="section-title">Model Statistics</h1>
+                <p class="section-subtitle">Performance metrics and technical specifications</p>
+            </header>
+
+            <div class="model-selector">
+                <span class="model-select-label">Model:</span>
+                <select class="model-select" id="modelSelect" onchange="updateModelInfo()">
+                    <option value="neo-1-70b-echo">neo-1-70b-echo</option>
+                    <option value="neo-2-70b-wire">neo-2-70b-wire</option>
+                    <option value="neo-3-70b-agent">neo-3-70b-agent</option>
+                    <option value="neo-3.2-1T-eon" selected>neo-3.2-1T-eon</option>
+                </select>
+                <span class="model-current-name" id="currentModel">neo-3.2-1T-eon</span>
+            </div>
+
+            <div class="model-description" id="modelDescription">
+                Current model — more personality, 1T perimeter, consistent speed.
+            </div>
+
+            <div id="modelSpecs" class="specs-grid">
+                </div>
+
+            <div id="toolsTable">
+                </div>
+        </section>
+
+        <section id="models" class="section">
+            <header class="section-header">
+                <h1 class="section-title">Model Overview</h1>
+                <p class="section-subtitle">Evolution and technical details</p>
+            </header>
+
+            <div id="modelEvolution">
+                </div>
+        </section>
+
+        <section id="tools" class="section">
+            <header class="section-header">
+                <h1 class="section-title">Tool Library</h1>
+                <p class="section-subtitle">Available capabilities and modules</p>
+            </header>
+
+            <div id="toolsLibrary">
+                </div>
+        </section>
+
+        <section id="docs" class="section">
+            <header class="section-header">
+                <h1 class="section-title">Documentation</h1>
+                <p class="section-subtitle">Technical guides and development logs</p>
+            </header>
+
+            <div class="docs-content">
+                <nav class="docs-nav">
+                    <button class="docs-tab active" data-tab="dev-logs">Development Logs</button>
+                    <button class="docs-tab" data-tab="architecture">Architecture</button>
+                    <button class="docs-tab" data-tab="project-info">Project Info</button>
+                </nav>
+
+                <div id="dev-logs" class="docs-section active">
+                    <h3>Development Log - v3.2-1T (Eon)</h3>
+                    <p><strong>July 22, 2025:</strong> Implemented advanced personality tuning for more nuanced responses. Improved contextual understanding for longer conversations. Optimized token handling for efficiency.</p>
+                    <p><strong>July 15, 2025:</strong> Deployed 1-Trillion parameter model for significantly enhanced reasoning. Enhanced built-in capabilities for real-time information processing and analysis.</p>
+                    <p><strong>June 28, 2025:</strong> Core architecture refactor for modularity. Introduced "Agent Mode" for multi-step problem solving. Initial testing for self-correction algorithms.</p>
+                    <h3>Development Log - v3.0 (Agent)</h3>
+                    <p><strong>May 10, 2025:</strong> Focused on improving reasoning and complex problem-solving. Introduced tool-use capabilities to extend knowledge beyond training data.</p>
+                    <p><strong>April 20, 2025:</strong> Enhanced natural language understanding for more complex queries. Began development of dynamic tool selection mechanism.</p>
+
+                    <h3>Development Log - v2.0 (Wire)</h3>
+                    <p><strong>March 1, 2025:</strong> Significant upgrade to core neural network architecture. Improved response coherence and reduced factual errors. Faster inference times achieved.</p>
+
+                    <h3>Development Log - v1.0 (Echo)</h3>
+                    <p><strong>February 1, 2025:</strong> Initial prototype deployment. Basic conversational capabilities. Focused on foundational language generation and understanding.</p>
+                </div>
+
+                <div id="project-info" class="docs-section">
+                    <h3>About Neo Project</h3>
+                    <p>Neo is a custom-built large language model and AI system developed entirely from scratch. Neo itself is the AI - not a wrapper or interface to other models. This hub serves as a comprehensive overview of Neo's evolution as a custom language model, technical achievements in building sophisticated conversational AI capabilities, and complete independence from any external AI services or APIs.</p>
+                    
+                    <h4>Project Goals</h4>
+                    <ul>
+                        <li><strong>Model Evolution:</strong> Continuously improving AI capabilities through iterative development</li>
+                        <li><strong>Tool Integration:</strong> Expanding functionality through external tool integration</li>
+                        <li><strong>Personality Development:</strong> Creating more natural and engaging conversational experiences</li>
+                        <li><strong>Performance Optimization:</strong> Balancing model sophistication with response speed</li>
+                    </ul>
+
+                    <h4>Technical Stack</h4>
+                    <p>Neo is built entirely as a custom language model with proprietary technologies:</p>
+                    <div class="code-block">
+                        <pre><code>Core Technologies:
+- Custom-built Large Language Models (70B - 1T parameters)
+- Proprietary Transformer Architecture
+- Original image generation models
+- Built-in multi-modal capabilities
+- Integrated tool processing
+- Advanced context management
+- Proprietary model training pipeline
+- Self-contained inference system</code></pre>
+                    </div>
+
+                    <h4>Current Status</h4>
+                    <p><strong>Active Development:</strong> The project is currently in active development with the latest version (neo-3.2-1T-eon) representing the cutting edge of the project's capabilities.</p>
+                    <p><strong>Key Achievements:</strong></p>
+                    <ul>
+                        <li>Developed custom base model architecture from scratch</li>
+                        <li>Built proprietary image generation models</li>
+                        <li>Scaled from 70B to 1T parameters through iterative development</li>
+                        <li>Reduced average response latency from 250ms to 120ms</li>
+                        <li>Expanded context window from 4K to 131K tokens</li>
+                        <li>Created 16+ specialized built-in capabilities</li>
+                        <li>Built entirely proprietary training and inference pipeline</li>
+                        <li>Achieved complete independence from external AI services</li>
+                    </ul>
+                </div>
+
+                <div id="architecture" class="docs-section">
+                    <h3>Neo Architecture Overview</h3>
+                    <p>Neo is built on a modular microservices architecture, allowing for scalability and easy integration of new features and models.</p>
+                    <h4>Core Components:</h4>
+                    <ul>
+                        <li><strong>Inference Engine:</strong> Manages the loading and execution of various Neo models. Optimized for low-latency responses.</li>
+                        <li><strong>Tooling Layer:</strong> A robust system for orchestrating built-in capabilities and internal tools (e.g., search, data analysis, content generation).</li>
+                        <li><strong>Memory Management Unit (MMU):</strong> Handles conversational context, long-term memory, and user preferences to ensure coherent and personalized interactions.</li>
+                        <li><strong>Personality Module:</strong> A configurable layer that modulates the AI's tone, empathy, and adherence to specific guidelines.</li>
+                        <li><strong>API Gateway:</strong> The primary interface for user interactions, handling request routing, processing, and response formatting.</li>
+                    </ul>
+                    <h4>Data Flow:</h4>
+                    <p>User input -> API Gateway -> MMU (context retrieval) -> Inference Engine (model inference & tool selection) -> Tooling Layer (if tool needed) -> Inference Engine (process tool output) -> Personality Module (apply tone) -> API Gateway -> User Output.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const modelsData = {
+            "neo-1-70b-echo": {
+                description: "Initial prototype — basic conversational capabilities, focus on foundational language generation.",
+                specs: {
+                    "Parameters": "70 Billion",
+                    "Training Data": "1.2 Trillion tokens",
+                    "Response Latency": "250ms (avg)",
+                    "Max Context": "4K tokens",
+                    "Key Feature": "Foundational understanding",
+                    "Date Released": "Feb 2025"
+                },
+                tools: [
+                    { name: "Basic Web Search", capabilities: "Simple fact retrieval" },
+                    { name: "Calculator", capabilities: "Arithmetic operations" }
+                ]
+            },
+            "neo-2-70b-wire": {
+                description: "Significant upgrade to core neural network architecture. Improved response coherence and factual accuracy.",
+                specs: {
+                    "Parameters": "70 Billion",
+                    "Training Data": "2.5 Trillion tokens",
+                    "Response Latency": "180ms (avg)",
+                    "Max Context": "8K tokens",
+                    "Key Feature": "Improved coherence, accuracy",
+                    "Date Released": "Mar 2025"
+                },
+                tools: [
+                    { name: "Advanced Web Search", capabilities: "More complex queries, multiple sources" },
+                    { name: "Code Interpreter", capabilities: "Execute Python snippets" },
+                    { name: "Language Translator", capabilities: "Translate between 5 languages" }
+                ]
+            },
+            "neo-3-70b-agent": {
+                description: "Focused on improving reasoning and complex problem-solving. Introduced tool-use capabilities.",
+                specs: {
+                    "Parameters": "70 Billion",
+                    "Training Data": "5 Trillion tokens",
+                    "Response Latency": "150ms (avg)",
+                    "Max Context": "16K tokens",
+                    "Key Feature": "Reasoning, multi-step problem solving",
+                    "Date Released": "May 2025"
+                },
+                tools: [
+                    { name: "Complex Web Search", capabilities: "Synthesize information from multiple pages" },
+                    { name: "Data Analysis (CSV)", capabilities: "Process and summarize CSV data" },
+                    { name: "Image Generation (Text-to-Image)", capabilities: "Create images from text descriptions using Neo's custom image model" },
+                    { name: "News Aggregator", capabilities: "Fetch top headlines and summaries" },
+                    { name: "Calendar Management", capabilities: "Add/view events (simulated)" }
+                ]
+            },
+            "neo-3.2-1T-eon": {
+                description: "Current model — more personality, 1T perimeter, consistent speed. Enhanced contextual understanding.",
+                specs: {
+                    "Parameters": "1 Trillion",
+                    "Training Data": "10 Trillion tokens",
+                    "Response Latency": "120ms (avg)",
+                    "Max Context": "131,072 tokens",
+                    "Key Feature": "Advanced personality, 1T perimeter, consistent speed",
+                    "Date Released": "July 2025"
+                },
+                tools: [
+                    { name: "All previous tools", capabilities: "Includes all prior functionalities" },
+                    { name: "Advanced Code Debugger", capabilities: "Suggest fixes for common coding errors" },
+                    { name: "Sentiment Analyzer", capabilities: "Determine emotional tone of text" },
+                    { name: "Voice Synthesis", capabilities: "Convert text to natural-sounding speech" },
+                    { name: "Personalized Recommendations", capabilities: "Suggest content based on user history" },
+                    { name: "Knowledge Graph Query", capabilities: "Access structured factual information" },
+                    { name: "Creative Writing Assistant", capabilities: "Help brainstorm and generate creative content" },
+                    { name: "Project Management Assistant", capabilities: "Track tasks, set reminders (simulated)" }
+                ]
+            }
+        };
+
+        // Function to show active section and highlight nav link
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            const activeLink = document.querySelector(`.nav-link[onclick*="${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+
+            // For 'stats' section, ensure model info is updated on display
+            if (sectionId === 'stats') {
+                updateModelInfo();
+            }
+            // For 'models' section, ensure content is loaded
+            if (sectionId === 'models') {
+                loadModelEvolution();
+            }
+            // For 'tools' section, ensure content is loaded
+            if (sectionId === 'tools') {
+                loadToolsLibrary();
+            }
+            // For 'docs' section, ensure default tab is active
+            if (sectionId === 'docs') {
+                showDocsTab('dev-logs');
+            }
+        }
+
+        // Function to toggle light/dark mode
+        function toggleMode() {
+            document.body.classList.toggle('light');
+            const modeButton = document.querySelector('.toggle-mode');
+            if (document.body.classList.contains('light')) {
+                modeButton.textContent = '☀️ Light';
+            } else {
+                modeButton.textContent = '🌙 Dark';
+            }
+        }
+
+        // --- Model Stats Section Functions ---
+        function updateModelInfo() {
+            const selectElement = document.getElementById('modelSelect');
+            const selectedModelId = selectElement.value;
+            const model = modelsData[selectedModelId];
+
+            if (model) {
+                document.getElementById('currentModel').textContent = selectedModelId;
+                document.getElementById('modelDescription').textContent = model.description;
+
+                const specsGrid = document.getElementById('modelSpecs');
+                specsGrid.innerHTML = ''; // Clear previous specs
+                for (const [label, value] of Object.entries(model.specs)) {
+                    specsGrid.innerHTML += `
+                        <div class="spec-item">
+                            <span class="spec-label">${label}:</span>
+                            <span class="spec-value">${value}</span>
+                        </div>
+                    `;
+                }
+
+                const toolsTableDiv = document.getElementById('toolsTable');
+                toolsTableDiv.innerHTML = `
+                    <table class="tools-table">
+                        <thead>
+                            <tr>
+                                <th>Tool Name</th>
+                                <th>Capabilities</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modelToolsBody">
+                        </tbody>
+                    </table>
+                `;
+                const toolsBody = document.getElementById('modelToolsBody');
+                model.tools.forEach(tool => {
+                    toolsBody.innerHTML += `
+                        <tr>
+                            <td>${tool.name}</td>
+                            <td>${tool.capabilities}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // --- Models Section Functions ---
+        function loadModelEvolution() {
+            const modelEvolutionDiv = document.getElementById('modelEvolution');
+            modelEvolutionDiv.innerHTML = `
+                <div class="specs-grid">
+                    ${Object.entries(modelsData).map(([id, data]) => `
+                        <div class="nav-card">
+                            <span class="card-icon">🧠</span>
+                            <h2 class="card-title">${id}</h2>
+                            <p class="card-description">${data.description}</p>
+                            <div class="card-stats">
+                                <strong>Parameters:</strong> ${data.specs.Parameters} |
+                                <strong>Context:</strong> ${data.specs["Max Context"]} |
+                                <strong>Released:</strong> ${data.specs["Date Released"]}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // --- Tools Section Functions ---
+        function loadToolsLibrary() {
+            const toolsLibraryDiv = document.getElementById('toolsLibrary');
+            let allTools = [];
+            for (const modelId in modelsData) {
+                modelsData[modelId].tools.forEach(tool => {
+                    // Avoid duplicates and add a 'source' model info
+                    if (!allTools.some(t => t.name === tool.name)) {
+                        allTools.push({ ...tool, sourceModel: modelId });
+                    }
+                });
+            }
+
+            toolsLibraryDiv.innerHTML = `
+                <table class="tools-table">
+                    <thead>
+                        <tr>
+                            <th>Tool Name</th>
+                            <th>Capabilities</th>
+                            <th>Introduced in Model</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allToolsBody">
+                    </tbody>
+                </table>
+            `;
+            const allToolsBody = document.getElementById('allToolsBody');
+            allTools.sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+            allTools.forEach(tool => {
+                allToolsBody.innerHTML += `
+                    <tr>
+                        <td>${tool.name}</td>
+                        <td>${tool.capabilities}</td>
+                        <td>${tool.sourceModel}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- Docs Section Functions ---
+        function showDocsTab(tabId) {
+            document.querySelectorAll('.docs-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.docs-tab[data-tab="${tabId}"]`).classList.add('active');
+
+            document.querySelectorAll('.docs-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('welcome'); // Show welcome section by default
+            updateModelInfo(); // Initialize model stats with default selected model
+            loadModelEvolution(); // Load model evolution details
+            loadToolsLibrary(); // Load tools library details
+
+            // Add event listeners for docs tabs
+            document.querySelectorAll('.docs-tab').forEach(tab => {
+                tab.addEventListener('click', (event) => {
+                    showDocsTab(event.target.dataset.tab);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
