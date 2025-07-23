@@ -535,6 +535,71 @@
             }
         }
 
+        /* Platform-specific optimizations */
+        body.xbox, body.playstation, body.nintendo, body.tv {
+            font-size: 1.1rem; /* Larger text for TV viewing */
+            cursor: none; /* Hide cursor for console/TV */
+        }
+        
+        body.xbox .nav-card:focus,
+        body.playstation .nav-card:focus,
+        body.nintendo .nav-card:focus,
+        body.tv .nav-card:focus {
+            outline: 3px solid var(--primary);
+            outline-offset: 4px;
+            transform: scale(1.05);
+        }
+        
+        /* Enhanced focus indicators for gamepad navigation */
+        button:focus,
+        .nav-link:focus,
+        .nav-card:focus,
+        select:focus,
+        .docs-tab:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.2);
+        }
+        
+        /* TV/Large screen optimizations */
+        @media screen and (min-width: 1920px) {
+            body {
+                font-size: 1.2rem;
+            }
+            
+            .welcome-logo {
+                font-size: 5rem;
+            }
+            
+            .nav-grid {
+                max-width: 1400px;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-card {
+                padding: 3rem;
+            }
+            
+            .section {
+                max-width: 1600px;
+            }
+        }
+        
+        /* 4K/Ultra HD optimizations */
+        @media screen and (min-width: 3840px) {
+            body {
+                font-size: 1.4rem;
+            }
+            
+            .welcome-logo {
+                font-size: 6rem;
+            }
+            
+            .nav-card {
+                padding: 4rem;
+            }
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .nav-bar {
@@ -566,6 +631,33 @@
                 padding: 1rem;
             }
         }
+        
+        /* Tablet optimizations */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .nav-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .welcome-logo {
+                font-size: 4rem;
+            }
+        }
+        
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .nav-card {
+                border-width: 0.5px;
+            }
+        }
+        
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -586,6 +678,7 @@
                 <h1 class="welcome-logo">Neo</h1>
                 <p class="welcome-subtitle">Neo AI Project Hub</p>
                 <span class="version-badge">v3.5-1T • In Active Development</span>
+                <div id="platform-info" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted-dark);"></div>
             </header>
 
             <div class="nav-grid">
@@ -699,7 +792,7 @@
                 <div id="project-info" class="docs-section">
                     <h3>About Neo Project</h3>
                     <p>Neo is a custom-built large language model and AI system developed entirely from scratch. Neo itself is the AI - not a wrapper or interface to other models. This hub serves as a comprehensive overview of Neo's evolution as a custom language model, technical achievements in building sophisticated conversational AI capabilities, and complete independence from any external AI services or APIs.</p>
-                    
+
                     <h4>Project Goals</h4>
                     <ul>
                         <li><strong>Model Evolution:</strong> Continuously improving AI capabilities through iterative development</li>
@@ -756,6 +849,110 @@
     </main>
 
     <script>
+        // Gamepad and platform detection
+        let gamepadIndex = null;
+        let gamepadConnected = false;
+        
+        // Platform detection
+        const isXbox = /Xbox/i.test(navigator.userAgent);
+        const isPlayStation = /PlayStation/i.test(navigator.userAgent);
+        const isSwitch = /Nintendo/i.test(navigator.userAgent);
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTV = /TV|SmartTV|GoogleTV|AppleTV|Roku|FireTV/i.test(navigator.userAgent);
+        
+        // Gamepad support
+        window.addEventListener("gamepadconnected", (e) => {
+            gamepadIndex = e.gamepad.index;
+            gamepadConnected = true;
+            console.log("Gamepad connected:", e.gamepad.id);
+            showGamepadInstructions();
+        });
+        
+        window.addEventListener("gamepaddisconnected", (e) => {
+            gamepadConnected = false;
+            hideGamepadInstructions();
+        });
+        
+        function showGamepadInstructions() {
+            const instructions = document.createElement('div');
+            instructions.id = 'gamepad-instructions';
+            instructions.innerHTML = `
+                <div style="position: fixed; top: 90px; right: 20px; background: var(--card-bg-dark); border: 1px solid var(--primary); border-radius: 8px; padding: 1rem; z-index: 999; font-size: 0.9rem;">
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">🎮 Gamepad Controls</h4>
+                    <p>D-Pad/Left Stick: Navigate</p>
+                    <p>A/X: Select</p>
+                    <p>B/Circle: Back</p>
+                    <p>Y/Triangle: Toggle Mode</p>
+                </div>
+            `;
+            document.body.appendChild(instructions);
+        }
+        
+        function hideGamepadInstructions() {
+            const instructions = document.getElementById('gamepad-instructions');
+            if (instructions) instructions.remove();
+        }
+        
+        // Gamepad navigation
+        function handleGamepadInput() {
+            if (!gamepadConnected) return;
+            
+            const gamepad = navigator.getGamepads()[gamepadIndex];
+            if (!gamepad) return;
+            
+            // Button mappings (Xbox/generic layout)
+            const buttons = gamepad.buttons;
+            const axes = gamepad.axes;
+            
+            // A button or Cross (select)
+            if (buttons[0] && buttons[0].pressed) {
+                const focusedElement = document.activeElement;
+                if (focusedElement && focusedElement.click) {
+                    focusedElement.click();
+                }
+            }
+            
+            // Y button or Triangle (toggle mode)
+            if (buttons[3] && buttons[3].pressed) {
+                toggleMode();
+            }
+            
+            // D-pad or left stick navigation
+            if (axes[1] < -0.5 || buttons[12] && buttons[12].pressed) { // Up
+                navigateFocus('up');
+            } else if (axes[1] > 0.5 || buttons[13] && buttons[13].pressed) { // Down
+                navigateFocus('down');
+            } else if (axes[0] < -0.5 || buttons[14] && buttons[14].pressed) { // Left
+                navigateFocus('left');
+            } else if (axes[0] > 0.5 || buttons[15] && buttons[15].pressed) { // Right
+                navigateFocus('right');
+            }
+        }
+        
+        function navigateFocus(direction) {
+            const focusableElements = Array.from(document.querySelectorAll('button, .nav-link, .nav-card, select, .docs-tab'));
+            const currentIndex = focusableElements.indexOf(document.activeElement);
+            
+            let nextIndex;
+            switch(direction) {
+                case 'up':
+                case 'left':
+                    nextIndex = currentIndex > 0 ? currentIndex - 1 : focusableElements.length - 1;
+                    break;
+                case 'down':
+                case 'right':
+                    nextIndex = currentIndex < focusableElements.length - 1 ? currentIndex + 1 : 0;
+                    break;
+            }
+            
+            if (focusableElements[nextIndex]) {
+                focusableElements[nextIndex].focus();
+            }
+        }
+        
+        // Initialize gamepad polling
+        setInterval(handleGamepadInput, 100);
+
         const modelsData = {
             "neo-1-70b-echo": {
                 description: "Initial prototype — basic conversational capabilities, focus on foundational language generation.",
@@ -992,8 +1189,72 @@
             document.getElementById(tabId).classList.add('active');
         }
 
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'ArrowDown':
+                case 'ArrowLeft': 
+                case 'ArrowRight':
+                    e.preventDefault();
+                    navigateFocus(e.key.replace('Arrow', '').toLowerCase());
+                    break;
+                case 'Enter':
+                case ' ':
+                    e.preventDefault();
+                    if (document.activeElement && document.activeElement.click) {
+                        document.activeElement.click();
+                    }
+                    break;
+                case 'Escape':
+                    // Focus back to main navigation
+                    document.querySelector('.nav-logo').focus();
+                    break;
+            }
+        });
+        
+        // Add platform detection classes
+        function addPlatformClasses() {
+            const platformInfo = document.getElementById('platform-info');
+            let platformText = '';
+            
+            if (isXbox) {
+                document.body.classList.add('xbox');
+                platformText = '🎮 Xbox Compatible • Use gamepad to navigate';
+            } else if (isPlayStation) {
+                document.body.classList.add('playstation');
+                platformText = '🎮 PlayStation Compatible • Use DualShock/DualSense to navigate';
+            } else if (isSwitch) {
+                document.body.classList.add('nintendo');
+                platformText = '🎮 Nintendo Switch Compatible • Use Joy-Con to navigate';
+            } else if (isTV) {
+                document.body.classList.add('tv');
+                platformText = '📺 Smart TV Optimized • Use remote control to navigate';
+            } else if (isMobile) {
+                document.body.classList.add('mobile');
+                platformText = '📱 Mobile Optimized • Touch to navigate';
+            } else {
+                platformText = '💻 PC Compatible • Use mouse, keyboard, or gamepad';
+            }
+            
+            if (platformInfo) {
+                platformInfo.textContent = platformText;
+            }
+        }
+        
+        // Make elements focusable for gamepad/keyboard navigation
+        function makeFocusable() {
+            document.querySelectorAll('.nav-card, .nav-link').forEach(element => {
+                if (!element.hasAttribute('tabindex')) {
+                    element.setAttribute('tabindex', '0');
+                }
+            });
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
+            addPlatformClasses(); // Detect and add platform classes
+            makeFocusable(); // Make elements keyboard/gamepad accessible
             showSection('welcome'); // Show welcome section by default
             updateModelInfo(); // Initialize model stats with default selected model
             loadModelEvolution(); // Load model evolution details
@@ -1005,7 +1266,14 @@
                     showDocsTab(event.target.dataset.tab);
                 });
             });
+            
+            // Set initial focus for gamepad users
+            if (gamepadConnected || isXbox || isPlayStation || isSwitch) {
+                setTimeout(() => {
+                    document.querySelector('.nav-logo').focus();
+                }, 500);
+            }
         });
     </script>
 </body>
-</html>
+    </html>
